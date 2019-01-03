@@ -9,7 +9,7 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
-public class QRCodeScannerTest extends AppCompatActivity implements ZBarScannerView.ResultHandler {
+public class QRCodeScanner extends AppCompatActivity implements ZBarScannerView.ResultHandler {
     private ZBarScannerView mScannerView;
 
     @Override

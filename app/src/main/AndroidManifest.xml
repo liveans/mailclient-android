@@ -31,7 +31,7 @@
         </activity>
         <activity android:name=".SendMail" />
         <activity android:name=".ShareActivity" />
-        <activity android:name=".QRCodeScannerTest"></activity>
+        <activity android:name=".QRCodeScanner"></activity>
     </application>
 
 </manifest>

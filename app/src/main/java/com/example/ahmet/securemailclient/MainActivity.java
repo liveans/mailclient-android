@@ -123,10 +123,10 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
                                     14232);
                         }
                     } else {
-                        menuIntent=new Intent(MainActivity.this,QRCodeScannerTest.class);
+                        menuIntent=new Intent(MainActivity.this,QRCodeScanner.class);
                     }
                 } else {
-                    menuIntent=new Intent(MainActivity.this,QRCodeScannerTest.class);
+                    menuIntent=new Intent(MainActivity.this,QRCodeScanner.class);
                 }
                 break;
             default:
