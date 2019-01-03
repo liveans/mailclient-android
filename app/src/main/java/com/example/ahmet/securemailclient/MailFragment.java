@@ -34,7 +34,7 @@ public class MailFragment extends Fragment {
     private OnListFragmentInteractionListener mListener;
     private MyMailRecyclerViewAdapter recyclerViewAdapter;
     private RecyclerView recyclerView;
-    public static MailFragment instance;
+    public static MailFragment instance=null;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the

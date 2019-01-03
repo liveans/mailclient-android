@@ -59,36 +59,33 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                if (dialog!=null) {
-                    dialog.setIndeterminate(false);
-                    dialog.dismiss();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            MailFragment.getInstance().refreshData();
-                        }
-                    });
+                finally {
+                    if (dialog!=null) {
+                        dialog.setIndeterminate(false);
+                        dialog.dismiss();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (MailFragment.getInstance()!=null) {
+                                    MailFragment.getInstance().refreshData();
+                                }
+                            }
+                        });
+                    }
                 }
             }
         }));
         executorService.shutdown();
-        System.out.println("hit");
-        final String str="";
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this,SendMail.class);
                 startActivity(intent);
-                //MailFragment.recyclerViewAdapter.notifyDataSetChanged();
-                //Intent intent = new Intent(MainActivity.this,QRCodeActivity.class);
-                //intent.putExtra("key",str);
-                //startActivity(intent);
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                  //      .setAction("Action", null).show();
             }
         });
-        //new MailClient().execute("liveans@gmail.com","696969ahmet07");
+
     }
 
     @Override
