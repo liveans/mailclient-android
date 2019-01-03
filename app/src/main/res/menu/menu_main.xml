@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.ahmet.securemailclient.MainActivity">
+    <item
+        android:id="@+id/action_share_key"
+        android:icon="@android:drawable/ic_menu_share"
+        android:orderInCategory="100"
+        android:title="@string/share_key"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_read_qr_code"
+        android:orderInCategory="100"
+        android:icon="@android:drawable/ic_menu_camera"
+        android:title="@string/read_qr_code"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_read_key_file"
+        android:orderInCategory="100"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="@string/read_key_file"
+        app:showAsAction="always" />
+</menu>
