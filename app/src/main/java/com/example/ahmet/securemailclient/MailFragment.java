@@ -32,14 +32,28 @@ public class MailFragment extends Fragment {
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
-    public static MyMailRecyclerViewAdapter recyclerViewAdapter;
+    private MyMailRecyclerViewAdapter recyclerViewAdapter;
+    private RecyclerView recyclerView;
+    public static MailFragment instance;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public MailFragment() {
 
+    public void refreshData() {
+        recyclerViewAdapter.notifyDataSetChanged();
+        recyclerView.setAdapter(recyclerViewAdapter);
+    }
+
+    public static MailFragment getInstance() {
+        return instance;
+    }
+
+    public MailFragment() {
+        if (instance==null) {
+            instance=this;
+        }
     }
 
     // TODO: Customize parameter initialization
@@ -69,7 +83,7 @@ public class MailFragment extends Fragment {
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
+            recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {

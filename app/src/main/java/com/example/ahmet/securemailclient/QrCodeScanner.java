@@ -36,7 +36,7 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
 
     @Override
     public void handleResult(Result rawResult) {
-        //TODO : write db here. with rawResult.getText()
+        //TODO : write db here. with rawResult.getText() data is email + delimiter + pgp public key
         Intent intent = new Intent();
         intent.putExtra(Constants.KEY_QR_CODE, rawResult.getText());
         setResult(RESULT_OK, intent);

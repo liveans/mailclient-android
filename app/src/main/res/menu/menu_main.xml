@@ -14,10 +14,4 @@
         android:icon="@android:drawable/ic_menu_camera"
         android:title="@string/read_qr_code"
         app:showAsAction="always" />
-    <item
-        android:id="@+id/action_read_key_file"
-        android:orderInCategory="100"
-        android:icon="@android:drawable/ic_menu_add"
-        android:title="@string/read_key_file"
-        app:showAsAction="always" />
 </menu>

@@ -33,11 +33,15 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        transaction.replace(R.id.mainActivity_view, new MailFragment());
+        transaction.commit();
+
         ExecutorService executorService=Executors.newSingleThreadExecutor();
-        ProgressDialog dialog=null;
+        final ProgressDialog dialog=ProgressDialog.show(MainActivity.this, "Connecting",
+                "Connecting. Please wait...", true);
         if (!MailClient.getInstance().isConnected) {
-            dialog = ProgressDialog.show(MainActivity.this, "Connecting",
-                    "Connecting. Please wait...", true);
             executorService.submit(new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -55,18 +59,20 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                if (dialog!=null) {
+                    dialog.setIndeterminate(false);
+                    dialog.dismiss();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MailFragment.getInstance().refreshData();
+                        }
+                    });
+                }
             }
         }));
         executorService.shutdown();
-        if (dialog!=null) {
-            dialog.setIndeterminate(false);
-            dialog.dismiss();
-        }
-        FragmentManager manager = getSupportFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction();
-        transaction.replace(R.id.mainActivity_view, new MailFragment());
-        transaction.commit();
-
+        System.out.println("hit");
         final String str="";
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -108,8 +114,6 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
             case R.id.action_read_qr_code:
                 menuIntent=new Intent(MainActivity.this,QrCodeScanner.class);
                 break;
-            case R.id.action_read_key_file:
-                break;
             default:
                 break;
         }
@@ -121,6 +125,6 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
 
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
-
+        //TODO : list clicked action.
     }
 }
