@@ -33,11 +33,11 @@ public class ShareActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent=null;
                 switch (shareList[position]) {
-                    /*case "Whatsapp":
+                    case "Whatsapp":
                         String text=Constants.email+Constants.DELIMITER_KEY+Constants.pgpPublicKey;
                         File path=generateKeyOnSD(getApplicationContext(),Constants.email+".keypgp",text);
                         openWhatsAppConversation(path);
-                        break;*/
+                        break;
                     case "QR Code":
                         intent=new Intent(ShareActivity.this,QRCodeActivity.class);
                         break;
@@ -51,7 +51,7 @@ public class ShareActivity extends AppCompatActivity {
 
     public File generateKeyOnSD(Context context, String sFileName, String sBody) {
         try {
-            File root = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "Keys");
+            File root = new File(Environment.getRootDirectory().getAbsolutePath(), "Keys");
 
             System.out.println(root.getAbsolutePath());
             if (!root.exists()) {

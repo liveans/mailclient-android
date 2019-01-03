@@ -1,13 +1,16 @@
 package com.example.ahmet.securemailclient;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.net.Uri;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -15,9 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.ahmet.securemailclient.dummy.DummyContent;
-
-import org.spongycastle.openpgp.PGPException;
-import org.spongycastle.openpgp.PGPKeyRingGenerator;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -109,7 +109,25 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
                 menuIntent=new Intent(MainActivity.this,ShareActivity.class);
                 break;
             case R.id.action_read_qr_code:
-                menuIntent=new Intent(MainActivity.this,QrCodeScanner.class);
+                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.M) {
+                    if (ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.CAMERA)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                                Manifest.permission.CAMERA)) {
+                            //TODO : Explanation
+                        } else {
+                            ActivityCompat.requestPermissions(this,
+                                    new String[]{Manifest.permission.CAMERA},
+                                    14232);
+                        }
+                    } else {
+                        menuIntent=new Intent(MainActivity.this,QRCodeScannerTest.class);
+                    }
+                } else {
+                    menuIntent=new Intent(MainActivity.this,QRCodeScannerTest.class);
+                }
                 break;
             default:
                 break;
