@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.google.zxing.Result;
 
-import java.util.logging.Logger;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
@@ -16,9 +15,7 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
-        // Programmatically initialize the scanner view
         mScannerView = new ZXingScannerView(this);
-        // Set the scanner view as the content view
         setContentView(mScannerView);
         mScannerView.startCamera();
     }
@@ -26,9 +23,7 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
     @Override
     public void onResume() {
         super.onResume();
-        // Register ourselves as a handler for scan results.
         mScannerView.setResultHandler(this);
-        // Start camera on resume
         //mScannerView.startCamera();
     }
 
