@@ -15,4 +15,12 @@ public class Constants {
     public static String pgpPassword;
     public static String email;
     public static String password;
+
+    //Database
+    public static final String DATABASE_NAME="accountDb";
+    public static final int DATABASE_VERSION=1;
+
+
+    public static final String ACCOUNT_DATABASE_CREATE = "create table if not exists Accounts (id integer primary key,mail text not null,pgpPublicKey text not null,pgpSecretKey text not null,pgpPassword text not null)";
+    public static final String KEY_DATABASE_CREATE = "create table if not exists Keys (id integer primary key,mail text not null,pgpPublicKey text not null)";
 }

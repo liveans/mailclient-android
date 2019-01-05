@@ -2,6 +2,7 @@ package com.example.ahmet.securemailclient;
 
 import org.spongycastle.bcpg.ArmoredInputStream;
 import org.spongycastle.bcpg.ArmoredOutputStream;
+import org.spongycastle.bcpg.BCPGOutputStream;
 import org.spongycastle.bcpg.HashAlgorithmTags;
 import org.spongycastle.bcpg.SymmetricKeyAlgorithmTags;
 import org.spongycastle.bcpg.sig.Features;
@@ -27,17 +28,22 @@ import org.spongycastle.openpgp.PGPPublicKeyRing;
 import org.spongycastle.openpgp.PGPSecretKey;
 import org.spongycastle.openpgp.PGPSecretKeyRing;
 import org.spongycastle.openpgp.PGPSignature;
+import org.spongycastle.openpgp.PGPSignatureGenerator;
 import org.spongycastle.openpgp.PGPSignatureSubpacketGenerator;
 import org.spongycastle.openpgp.PGPUtil;
 import org.spongycastle.openpgp.operator.PBESecretKeyDecryptor;
 import org.spongycastle.openpgp.operator.PBESecretKeyEncryptor;
 import org.spongycastle.openpgp.operator.PGPDigestCalculator;
+import org.spongycastle.openpgp.operator.bc.BcKeyFingerprintCalculator;
 import org.spongycastle.openpgp.operator.bc.BcPBESecretKeyDecryptorBuilder;
 import org.spongycastle.openpgp.operator.bc.BcPBESecretKeyEncryptorBuilder;
 import org.spongycastle.openpgp.operator.bc.BcPGPContentSignerBuilder;
 import org.spongycastle.openpgp.operator.bc.BcPGPDigestCalculatorProvider;
 import org.spongycastle.openpgp.operator.bc.BcPGPKeyPair;
 import org.spongycastle.openpgp.operator.bc.BcPublicKeyDataDecryptorFactory;
+import org.spongycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder;
+import org.spongycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
+import org.spongycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
 import org.spongycastle.openpgp.operator.jcajce.JcePGPDataEncryptorBuilder;
 import org.spongycastle.openpgp.operator.jcajce.JcePublicKeyKeyEncryptionMethodGenerator;
 
@@ -50,13 +56,13 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.SignatureException;
 import java.util.Date;
 import java.util.Iterator;
 
 public class PgpUtils {
     private static final String PROVIDER = "SC";
-    private static final String KEY_RING_ID = "liveans07@hotmail.com";
-    //TODO : Key ring id will be changed as user email.
+    private static final String KEY_RING_ID = "KEY_RING_ID";
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -195,4 +201,65 @@ public class PgpUtils {
         armoredStreamPriv.close();
         return new String(baosPriv.toByteArray(), Charset.defaultCharset());
     }
+
+    public static String sign( String data, PGPPrivateKey privateKey ) throws IOException, PGPException,SignatureException
+    {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        ArmoredOutputStream aos = new ArmoredOutputStream( bos );
+
+        PGPCompressedDataGenerator compressGen = new PGPCompressedDataGenerator( PGPCompressedData.ZLIB );
+
+        BCPGOutputStream bcOut = new BCPGOutputStream( compressGen.open( aos ) );
+
+        PGPSignatureGenerator signGen = getSignatureGenerator( privateKey, bcOut );
+
+        produceSign( data.getBytes(), bcOut, signGen );
+
+        compressGen.close();
+
+        aos.close();
+
+        return new String(bos.toByteArray());
+    }
+
+
+    private static void produceSign(byte[] data, BCPGOutputStream bcOut, PGPSignatureGenerator signGen )
+            throws IOException, PGPException,SignatureException
+    {
+        PGPLiteralDataGenerator literalGen = new PGPLiteralDataGenerator();
+
+        OutputStream os = literalGen.open( bcOut, PGPLiteralData.BINARY, "", data.length, new Date() );
+
+        InputStream is = new ByteArrayInputStream( data );
+
+        int ch;
+
+        while ( ( ch = is.read() ) >= 0 )
+        {
+            signGen.update( ( byte ) ch );
+            os.write( ch );
+        }
+
+        literalGen.close();
+
+        signGen.generate().encode( bcOut );
+    }
+
+
+    private static PGPSignatureGenerator getSignatureGenerator( PGPPrivateKey privateKey, BCPGOutputStream bcOut )
+            throws PGPException, IOException
+    {
+        PGPSignatureGenerator signGen = new PGPSignatureGenerator(
+                new JcaPGPContentSignerBuilder( privateKey.getPublicKeyPacket().getAlgorithm(), PGPUtil.SHA1 )
+                        .setProvider( "BC" ) );
+
+        signGen.init( PGPSignature.BINARY_DOCUMENT, privateKey );
+
+        signGen.generateOnePassVersion( false ).encode( bcOut );
+
+        return signGen;
+    }
+
+
 }

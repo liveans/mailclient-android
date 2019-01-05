@@ -3,6 +3,7 @@ package com.example.ahmet.securemailclient;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,7 +46,18 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
             executorService.submit(new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    MailClient.getInstance().connect(Constants.email,Constants.password);
+                    if(!MailClient.getInstance().connect(Constants.email,Constants.password)) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                SharedPreferences shared=getSharedPreferences(Constants.SHARED_PREFERENCES_NAME,MODE_PRIVATE);
+                                shared.edit().remove(Constants.EMAIL_NAME);
+                                shared.edit().remove(Constants.PASSWORD_NAME);
+                                shared.edit().commit();
+                                finish();
+                            }
+                        });
+                    }
                 }
             }));
         }

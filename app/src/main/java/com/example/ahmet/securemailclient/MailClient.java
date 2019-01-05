@@ -1,6 +1,7 @@
 package com.example.ahmet.securemailclient;
 
 
+import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.example.ahmet.securemailclient.dummy.DummyContent;
@@ -8,6 +9,7 @@ import com.example.ahmet.securemailclient.dummy.DummyContent;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.mail.AuthenticationFailedException;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -105,10 +107,13 @@ public class MailClient {
             setupIMAPConnection();
             isConnected=true;
             return true;
+        } catch (AuthenticationFailedException e) {
+            e.printStackTrace();
         } catch (MessagingException e) {
             e.printStackTrace();
+        } finally {
+            return false;
         }
-        return false;
     }
 
     public static MailClient getInstance() {

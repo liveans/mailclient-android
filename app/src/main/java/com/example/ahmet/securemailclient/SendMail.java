@@ -44,6 +44,12 @@ public class SendMail extends AppCompatActivity {
                             encryptedText=PgpUtils.encrypt(message.getText().toString(),Constants.pgpPublicKey);
                             MailClient.getInstance().send(subject.getText().toString(),encryptedText,toWhom.getText().toString());
                             System.out.println("sended to:"+toWhom.getText().toString());
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    finish();
+                                }
+                            });
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (PGPException e) {
