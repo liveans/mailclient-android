@@ -14,4 +14,16 @@
         android:icon="@android:drawable/ic_menu_camera"
         android:title="@string/read_qr_code"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/send_public_key"
+        android:orderInCategory="100"
+        android:icon="@android:drawable/ic_menu_send"
+        android:title=""
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/change_keys"
+        android:orderInCategory="100"
+        android:icon="@android:drawable/ic_menu_upload"
+        android:title="@string/read_qr_code"
+        app:showAsAction="always" />
 </menu>

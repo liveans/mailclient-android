@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.ahmet.securemailclient.Constants;
+import com.example.ahmet.securemailclient.model.Account;
+import com.example.ahmet.securemailclient.model.Key;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     public DatabaseHelper(Context context) {
@@ -13,8 +15,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(Constants.ACCOUNT_DATABASE_CREATE);
-        db.execSQL(Constants.KEY_DATABASE_CREATE);
+        db.execSQL(Account.createTableIfNotExists());
+        db.execSQL(Key.createTableIfNotExists());
     }
 
     @Override

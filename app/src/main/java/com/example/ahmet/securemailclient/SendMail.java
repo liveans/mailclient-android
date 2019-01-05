@@ -10,6 +10,7 @@ import android.widget.EditText;
 import org.spongycastle.openpgp.PGPException;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public class SendMail extends AppCompatActivity {
     EditText subject;
@@ -39,10 +40,11 @@ public class SendMail extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        String encryptedText;
+                        String text=message.getText().toString();
                         try {
-                            encryptedText=PgpUtils.encrypt(message.getText().toString(),Constants.pgpPublicKey);
-                            MailClient.getInstance().send(subject.getText().toString(),encryptedText,toWhom.getText().toString());
+                            text=message.getText().toString()+Constants.DELIMITER_KEY+PgpUtils.getInstance().createSignature(text,true);
+                            text=PgpUtils.getInstance().encrypt(text);
+                            MailClient.getInstance().send(subject.getText().toString(),text,toWhom.getText().toString());
                             System.out.println("sended to:"+toWhom.getText().toString());
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -53,6 +55,8 @@ public class SendMail extends AppCompatActivity {
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (PGPException e) {
+                            e.printStackTrace();
+                        } catch (GeneralSecurityException e) {
                             e.printStackTrace();
                         }
                     }

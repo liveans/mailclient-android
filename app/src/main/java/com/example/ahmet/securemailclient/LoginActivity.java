@@ -31,10 +31,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.spongycastle.jce.provider.BouncyCastleProvider;
 import org.spongycastle.openpgp.PGPException;
 import org.spongycastle.openpgp.PGPKeyRingGenerator;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.GeneralSecurityException;
+import java.security.Security;
 import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,17 +63,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor sharedPreferencesEditor;
+    //private SharedPreferences sharedPreferences;
+    //private SharedPreferences.Editor sharedPreferencesEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        sharedPreferences=getSharedPreferences(Constants.SHARED_PREFERENCES_NAME,MODE_PRIVATE);
-        sharedPreferencesEditor=getSharedPreferences(Constants.SHARED_PREFERENCES_NAME,MODE_PRIVATE).edit();
-        LoadKeys();
-        CheckLogin();
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -91,45 +94,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-    }
-
-    private void LoadKeys() {
-        Constants.pgpPublicKey=sharedPreferences.getString(Constants.PGP_PUBLIC_KEY_NAME,"N/A");
-        Constants.pgpSecretKey=sharedPreferences.getString(Constants.PGP_SECRET_KEY_NAME,"N/A");
-        Constants.pgpPassword=sharedPreferences.getString(Constants.PGP_PASSWORD_KEY_NAME,"N/A");
-        if (Constants.pgpPublicKey.equals("N/A") || Constants.pgpSecretKey.equals("N/A") || Constants.pgpPassword.equals("N/A"))
-        {
-            try {
-                Constants.pgpPassword=UUID.randomUUID().toString();
-                final PGPKeyRingGenerator krgen = PgpUtils.generateKeyRingGenerator(Constants.pgpPassword.toCharArray());
-                Constants.pgpPublicKey = PgpUtils.genPGPPublicKey(krgen);
-                Constants.pgpSecretKey = PgpUtils.genPGPPrivKey(krgen);
-                sharedPreferencesEditor.putString(Constants.PGP_PUBLIC_KEY_NAME,Constants.pgpPublicKey).apply();
-                sharedPreferencesEditor.putString(Constants.PGP_SECRET_KEY_NAME,Constants.pgpSecretKey).apply();
-                sharedPreferencesEditor.putString(Constants.PGP_PASSWORD_KEY_NAME,Constants.pgpPassword).apply();
-                //String encrypted = PgpUtils.encrypt("Selam",pgpPublicKey);
-                //String decrypted = PgpUtils.decrypt(encrypted, "Password",pgpSecretKey);
-            }
-            catch (IOException ex) {
-                System.out.println("IOException : "+ex.getMessage());
-            }
-            catch (PGPException ex) {
-                System.out.println("PGPException : "+ex.getMessage());
-            }
-            catch (Exception ex) {
-                System.out.println("Exception : "+ex.getMessage());
-            }
-        }
-    }
-
-    private void CheckLogin() {
-        Constants.email=sharedPreferences.getString(Constants.EMAIL_NAME,"N/A");
-        Constants.password=sharedPreferences.getString(Constants.PASSWORD_NAME,"N/A");
-        if (!Constants.email.equals("N/A") && !Constants.password.equals("N/A")) {
-            Intent intent=new Intent(LoginActivity.this,MainActivity.class);
-            //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-        }
     }
 
     private void attemptLogin() {
@@ -178,13 +142,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                         boolean val=mAuthTask.execute((Void) null).get();
                         if (val) {
-                            Constants.email=email;
-                            Constants.password=password;
-                            sharedPreferencesEditor.putString(Constants.EMAIL_NAME,Constants.email);
-                            sharedPreferencesEditor.putString(Constants.PASSWORD_NAME,Constants.password);
-                            sharedPreferencesEditor.commit();
+                            Security.addProvider(new BouncyCastleProvider());
+                            Constants.email=mAuthTask.mEmail;
+                            Constants.password=mAuthTask.mPassword;
                             Intent intent=new Intent(LoginActivity.this,MainActivity.class);
-                            //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                         }
                     } catch (ExecutionException e) {

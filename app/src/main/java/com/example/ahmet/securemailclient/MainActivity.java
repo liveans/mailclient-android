@@ -2,6 +2,7 @@ package com.example.ahmet.securemailclient;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -12,11 +13,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import com.example.ahmet.securemailclient.dummy.DummyContent;
 
@@ -140,6 +144,34 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
                 } else {
                     menuIntent=new Intent(MainActivity.this,QRCodeScanner.class);
                 }
+                break;
+            case R.id.send_public_key:
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                alertDialog.setTitle("Email");
+                alertDialog.setMessage("Enter Email");
+
+                final EditText input = new EditText(MainActivity.this);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+                input.setLayoutParams(lp);
+                alertDialog.setView(input);
+                alertDialog.setIcon(android.R.drawable.ic_menu_send);
+                alertDialog.setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                MailClient.getInstance().send("[PUBLIC KEY SECURE CLIENT]",Constants.pgpPublicKey,input.getText().toString());
+                            }
+                        });
+
+                        alertDialog.setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                alertDialog.show();
                 break;
             default:
                 break;
