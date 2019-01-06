@@ -97,7 +97,7 @@ public class MailClient {
         DummyContent.ITEM_MAP.clear();
         String subject="",fromWho="",content="";
 
-        for (int i = 5; i>-1; i--) {
+        for (int i = 0; i<=10; i++) {
             Message message=inbox.getMessage(messageCount-i);
             ExtractMail.writePart(message);
             subject=message.getSubject();

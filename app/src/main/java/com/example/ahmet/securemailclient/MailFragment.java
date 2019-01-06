@@ -3,6 +3,7 @@ package com.example.ahmet.securemailclient;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +17,8 @@ import com.example.ahmet.securemailclient.dummy.DummyContent.DummyItem;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.mail.MessagingException;
 
@@ -81,9 +84,9 @@ public class MailFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_mail_list, container, false);
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
+        //if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            recyclerView = (RecyclerView) view;
+            recyclerView = (RecyclerView) view.findViewById(R.id.list);
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
@@ -94,7 +97,46 @@ public class MailFragment extends Fragment {
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                     DividerItemDecoration.VERTICAL);
             recyclerView.addItemDecoration(dividerItemDecoration);
-        }
+            final SwipeRefreshLayout swipeRefreshLayout=view.findViewById(R.id.swiperefresh);
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    ExecutorService service=Executors.newSingleThreadExecutor();
+                    service.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                MailClient.getInstance().receive();
+                                MailFragment.getInstance().refreshData();
+                                swipeRefreshLayout.setRefreshing(false);
+                                //swipeRefreshLayout.setRefreshing(false);
+                            } catch (MessagingException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    service.shutdown();
+                    System.out.println("happening.");
+                }
+            });
+            recyclerView.setVerticalScrollBarEnabled(true);
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener(){
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    int topRowVerticalPosition =
+                            (recyclerView == null || recyclerView.getChildCount() == 0) ? 0 : recyclerView.getChildAt(0).getTop();
+                    swipeRefreshLayout.setEnabled(topRowVerticalPosition >= 0);
+                    //swipeRefreshLayout.setRefreshing(topRowVerticalPosition>=0);
+                }
+
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                }
+            });
+        //}
         return view;
     }
 
