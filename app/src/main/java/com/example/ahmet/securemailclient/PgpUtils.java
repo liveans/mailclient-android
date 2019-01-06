@@ -1,5 +1,8 @@
 package com.example.ahmet.securemailclient;
 
+import android.database.Cursor;
+
+import com.example.ahmet.securemailclient.database.DatabaseManager;
 import com.example.ahmet.securemailclient.model.Account;
 
 import org.spongycastle.bcpg.ArmoredInputStream;
@@ -286,10 +289,16 @@ public class PgpUtils {
     {
         if (pgpSec == null) {
             try {
+                DatabaseManager db=new DatabaseManager(SecureClientApplication.getAppContext());
                 String publicKey="",secretKey="",password="";
-                //TODO:find email in database
-                if (mEmail.equals("") && !secretKey.equals("N/A"))
+                Cursor cursor=db.getDatabase().rawQuery("select * from "+Account.TABLE_NAME +" where "+Account.EMAIL.getName()+"=?",new String[] { mEmail });
+                if (cursor.getCount()>0 && cursor!= null)
                 {
+                    System.out.println("found.");
+                    cursor.moveToFirst();
+                    publicKey=cursor.getString(cursor.getColumnIndex(Account.PUBLIC_KEY.getName()));
+                    secretKey=cursor.getString(cursor.getColumnIndex(Account.SECRET_KEY.getName()));
+                    password=cursor.getString(cursor.getColumnIndex(Account.PASSWORD_KEY.getName()));
                     InputStream in=new ByteArrayInputStream(secretKey.getBytes());
                     skr = getPGPSecretKeyRing(secretKey);
                     in.close();
@@ -299,11 +308,17 @@ public class PgpUtils {
                     in.close();
 
                     pgpPassword=password;
+
+                    Constants.pgpPublicKey=publicKey;
+                    Constants.pgpSecretKey=secretKey;
+                    Constants.pgpPassword=password;
                 }
                 else {
+                    System.out.println("no data");
                     Account account=new Account();
                     account.setEmail(mEmail);
                     pgpPassword=UUID.randomUUID().toString();
+                    Constants.pgpPassword=pgpPassword;
                     account.setPasswordKey(pgpPassword);
                     final PGPKeyRingGenerator krgen = generateKeyRingGenerator(keyId, pgpPassword.toCharArray());
                     skr = krgen.generateSecretKeyRing();
@@ -324,7 +339,8 @@ public class PgpUtils {
                     account.setPublicKey(new String(baos.toByteArray(),Charset.defaultCharset()));
                     //System.out.println(new String(baos.toByteArray(),Charset.defaultCharset()));
                     baos.close();
-
+                    db.getDatabase().insert(account.TABLE_NAME,null,account.getContentValues());
+                    System.out.println("inserted.");
                 }
 
                 pgpSec = skr.getSecretKey();
@@ -385,7 +401,8 @@ public class PgpUtils {
 
     public boolean verifySignature(
             String          data,
-            String     signature)
+            String     signature,
+            String     publicKey)
             throws GeneralSecurityException, IOException, PGPException
     {
         InputStream in2 = new ByteArrayInputStream(signature.getBytes());
@@ -412,7 +429,7 @@ public class PgpUtils {
         InputStream                 dIn = new ByteArrayInputStream(data.getBytes());
 
         PGPSignature                sig = p3.get(0);
-        PGPPublicKey                key = pkr.getPublicKey();
+        PGPPublicKey                key = getPGPPublicKeyRing(publicKey).getPublicKey();
 
         sig.init(new JcaPGPContentVerifierBuilderProvider().setProvider("SC"), key);
 

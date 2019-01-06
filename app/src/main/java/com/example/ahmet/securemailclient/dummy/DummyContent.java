@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.mail.Message;
+
 
 public class DummyContent {
 
@@ -31,7 +33,7 @@ public class DummyContent {
 
         @Override
         public String toString() {
-            return content;
+            return content.toString();
         }
     }
 }

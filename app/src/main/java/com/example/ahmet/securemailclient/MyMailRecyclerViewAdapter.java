@@ -9,7 +9,10 @@ import android.widget.TextView;
 import com.example.ahmet.securemailclient.MailFragment.OnListFragmentInteractionListener;
 import com.example.ahmet.securemailclient.dummy.DummyContent.DummyItem;
 
+import java.io.IOException;
 import java.util.List;
+
+import javax.mail.MessagingException;
 
 public class MyMailRecyclerViewAdapter extends RecyclerView.Adapter<MyMailRecyclerViewAdapter.ViewHolder> {
 
@@ -29,12 +32,11 @@ public class MyMailRecyclerViewAdapter extends RecyclerView.Adapter<MyMailRecycl
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.mItem = mValues.get(position);
         holder.mFromWhoView.setText(mValues.get(position).fromWho);
         holder.mSubjectView.setText(mValues.get(position).subject);
         holder.mContentView.setText(mValues.get(position).content);
-
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

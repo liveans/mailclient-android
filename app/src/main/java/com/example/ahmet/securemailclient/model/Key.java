@@ -36,7 +36,6 @@ public class Key {
 
     public ContentValues getContentValues() {
         ContentValues values=new ContentValues();
-        values.put(ID.getName(),id);
         values.put(EMAIL.getName(),email);
         values.put(PUBLIC_KEY.getName(),publicKey);
         return values;

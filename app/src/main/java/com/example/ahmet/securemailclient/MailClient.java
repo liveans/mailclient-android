@@ -4,12 +4,15 @@ package com.example.ahmet.securemailclient;
 import android.content.Intent;
 import android.os.AsyncTask;
 
+import com.example.ahmet.securemailclient.database.DatabaseManager;
 import com.example.ahmet.securemailclient.dummy.DummyContent;
+import com.example.ahmet.securemailclient.model.Key;
 
 import java.io.IOException;
 import java.util.Properties;
 
 import javax.mail.AuthenticationFailedException;
+import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -84,19 +87,38 @@ public class MailClient {
     }
 
     public void receive() throws MessagingException,IOException {
+        setupIMAPConnection();
+        DatabaseManager db=new DatabaseManager(SecureClientApplication.getAppContext());
         Folder inbox = mReceiveStore.getFolder("inbox");
-        inbox.open(Folder.READ_ONLY);
+        inbox.open(Folder.READ_WRITE);
         int messageCount = inbox.getMessageCount();
         System.out.println("Total Messages in INBOX:- " + messageCount);
         DummyContent.ITEMS.clear();
         DummyContent.ITEM_MAP.clear();
-        for (int i = 5; i>0; i--) {
-            //System.out.println("Mail Subject:- " + inbox.getMessage(messageCount-i).getSubject());
-            //System.out.println("Mail From:- " + inbox.getMessage(messageCount-i).getFrom()[0]);
-            //System.out.println("Mail Content:- " + inbox.getMessage(messageCount-i).getContent().toString());
-            //System.out.println("------------------------------------------------------------");
-            DummyContent.addItem(new DummyContent.DummyItem(inbox.getMessage(messageCount-i).getFrom()[0].toString(),inbox.getMessage(messageCount-i).getSubject(),inbox.getMessage(messageCount-i).getContent().toString()));
+        String subject="",fromWho="",content="";
+
+        for (int i = 5; i>-1; i--) {
+            Message message=inbox.getMessage(messageCount-i);
+            ExtractMail.writePart(message);
+            subject=message.getSubject();
+            fromWho=message.getFrom()[0].toString();
+            content=message.getContent().toString();
+            if (subject.equals(Constants.PUBLIC_KEY_SUBJECT_NAME)) {
+                Key key;
+                if (!db.checkIfExistsKey(fromWho)) {
+                    key=new Key(fromWho,content);
+                    db.getDatabase().insert(Key.TABLE_NAME,null,key.getContentValues());
+                    message.setFlag(Flags.Flag.DELETED,true);
+                } else {
+                    key=new Key(fromWho,content);
+                    db.getDatabase().update(Key.TABLE_NAME,key.getContentValues(),Key.EMAIL.getName()+"=?",new String[]{fromWho});
+                }
+                continue;
+            }
+            DummyContent.addItem(new DummyContent.DummyItem(fromWho,subject,ExtractMail.writePart(message,true)));
         }
+        //inbox.close(true);
+        //mReceiveStore.close();
     }
 
     public boolean connect(String mEmail,String mPassword) {
@@ -105,13 +127,14 @@ public class MailClient {
         try {
             setupSMTPConnection();
             setupIMAPConnection();
+            mReceiveStore.close();
             isConnected=true;
             return true;
         } catch (AuthenticationFailedException e) {
             e.printStackTrace();
+            return false;
         } catch (MessagingException e) {
             e.printStackTrace();
-        } finally {
             return false;
         }
     }

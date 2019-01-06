@@ -46,7 +46,6 @@ public class Account {
 
     public ContentValues getContentValues() {
         ContentValues values=new ContentValues();
-        values.put(ID.getName(),id);
         values.put(EMAIL.getName(),email);
         values.put(PUBLIC_KEY.getName(),publicKey);
         values.put(SECRET_KEY.getName(),secretKey);

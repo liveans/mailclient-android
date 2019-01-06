@@ -139,12 +139,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 @Override
                 public void run() {
                     try {
-
                         boolean val=mAuthTask.execute((Void) null).get();
                         if (val) {
-                            Security.addProvider(new BouncyCastleProvider());
-                            Constants.email=mAuthTask.mEmail;
-                            Constants.password=mAuthTask.mPassword;
+                            Constants.email=email;
+                            Constants.password=password;
                             Intent intent=new Intent(LoginActivity.this,MainActivity.class);
                             startActivity(intent);
                         }

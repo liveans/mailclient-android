@@ -24,7 +24,10 @@ import android.widget.LinearLayout;
 
 import com.example.ahmet.securemailclient.dummy.DummyContent;
 
+import org.spongycastle.jce.provider.BouncyCastleProvider;
+
 import java.io.IOException;
+import java.security.Security;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -46,29 +49,23 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
         ExecutorService executorService=Executors.newSingleThreadExecutor();
         final ProgressDialog dialog=ProgressDialog.show(MainActivity.this, "Connecting",
                 "Connecting. Please wait...", true);
-        if (!MailClient.getInstance().isConnected) {
+        /*if (!MailClient.getInstance().isConnected) {
             executorService.submit(new Thread(new Runnable() {
                 @Override
                 public void run() {
                     if(!MailClient.getInstance().connect(Constants.email,Constants.password)) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                SharedPreferences shared=getSharedPreferences(Constants.SHARED_PREFERENCES_NAME,MODE_PRIVATE);
-                                shared.edit().remove(Constants.EMAIL_NAME);
-                                shared.edit().remove(Constants.PASSWORD_NAME);
-                                shared.edit().commit();
-                                finish();
-                            }
-                        });
+
                     }
                 }
             }));
-        }
+        }*/
+
         executorService.submit(new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    Security.addProvider(new BouncyCastleProvider());
+                    PgpUtils.getInstance(Constants.email);
                     MailClient.getInstance().receive();
                 } catch (MessagingException e) {
                     e.printStackTrace();
@@ -146,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
                 }
                 break;
             case R.id.send_public_key:
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                 alertDialog.setTitle("Email");
                 alertDialog.setMessage("Enter Email");
 
@@ -159,8 +156,26 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
                 alertDialog.setIcon(android.R.drawable.ic_menu_send);
                 alertDialog.setPositiveButton("Send", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                MailClient.getInstance().send("[PUBLIC KEY SECURE CLIENT]",Constants.pgpPublicKey,input.getText().toString());
+                            public void onClick(final DialogInterface dialog, int which) {
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (input.getText().toString().contains("@")) {
+                                            System.out.println("sending.");
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    dialog.cancel();
+                                                }
+                                            });
+                                            MailClient.getInstance().send(Constants.PUBLIC_KEY_SUBJECT_NAME, Constants.pgpPublicKey, input.getText().toString());
+                                            System.out.println("sent.");
+                                        } else {
+                                            System.out.println("invalid.");
+                                            //TODO : Invalid mail address.
+                                        }
+                                    }
+                                }).start();
                             }
                         });
 
@@ -184,6 +199,8 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
 
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
-        //TODO : list clicked action.
+        Intent intent=new Intent(MainActivity.this,MailDetailActivity.class);
+        intent.putExtra("mailIndex",DummyContent.ITEMS.indexOf(item));
+        startActivity(intent);
     }
 }
