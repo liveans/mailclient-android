@@ -170,9 +170,9 @@ public class PgpUtils {
         return secretKey.extractPrivateKey(decryptor);
     }
 
-    public String encrypt(String msgText) throws IOException, PGPException {
+    public String encrypt(String msgText,String publicKey) throws IOException, PGPException {
         byte[] clearData = msgText.getBytes();
-        PGPPublicKey encKey = getPublicKey(pkr);
+        PGPPublicKey encKey = getPublicKey(getPGPPublicKeyRing(publicKey));
         ByteArrayOutputStream encOut = new ByteArrayOutputStream();
         OutputStream out = new ArmoredOutputStream(encOut);
         ByteArrayOutputStream bOut = new ByteArrayOutputStream();
