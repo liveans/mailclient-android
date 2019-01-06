@@ -88,6 +88,11 @@ public class SendMail extends AppCompatActivity {
 
                     if (searchPublicKeyInKeyTable(s.toString())!=null) {
                         encrypt.setEnabled(true);
+                    } else {
+                        encrypt.setEnabled(false);
+                        if (encrypt.isChecked()) {
+                            encrypt.setChecked(false);
+                        }
                     }
                 }
             }
