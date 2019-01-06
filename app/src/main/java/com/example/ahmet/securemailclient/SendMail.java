@@ -38,6 +38,7 @@ public class SendMail extends AppCompatActivity {
         toWhom=findViewById(R.id.thoWhomEditText);
         message=findViewById(R.id.messageEditText);
         encrypt=findViewById(R.id.encrypt_checkbox);
+        encrypt.setChecked(false);
         encrypt.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

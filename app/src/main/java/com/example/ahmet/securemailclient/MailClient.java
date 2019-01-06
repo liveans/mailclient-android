@@ -99,7 +99,7 @@ public class MailClient {
 
         for (int i = 0; i<=10; i++) {
             Message message=inbox.getMessage(messageCount-i);
-            ExtractMail.writePart(message);
+            //ExtractMail.writePart(message);
             subject=message.getSubject();
             fromWho=message.getFrom()[0].toString();
             content=message.getContent().toString();

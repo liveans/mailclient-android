@@ -18,4 +18,5 @@
     <string name="read_qr_code">Read QR Code</string>
     <string name="read_key_file">Read Key File</string>
     <string name="title_activity_mail_detail">MailDetailActivity</string>
+    <string name="biometric_failed">Fingerprint not recognized</string>
 </resources>
