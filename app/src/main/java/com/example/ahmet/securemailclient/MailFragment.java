@@ -23,12 +23,6 @@ import java.util.concurrent.Executors;
 
 import javax.mail.MessagingException;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
 public class MailFragment extends Fragment {
 
     // TODO: Customize parameter argument names
@@ -40,10 +34,6 @@ public class MailFragment extends Fragment {
     private RecyclerView recyclerView;
     public static MailFragment instance=null;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
 
     public void refreshData() {
         recyclerViewAdapter.notifyDataSetChanged();

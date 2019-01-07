@@ -7,8 +7,8 @@ import android.net.NetworkInfo;
 public class Network {
     Context context;
 
-    private Network() {
-
+    private Network(Context context) {
+        this.context=context;
     }
 
     public boolean isOnline() {
