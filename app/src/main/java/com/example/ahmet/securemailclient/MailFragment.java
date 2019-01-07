@@ -84,6 +84,7 @@ public class MailFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
             recyclerViewAdapter=new MyMailRecyclerViewAdapter(DummyContent.ITEMS, mListener);
+
             recyclerView.setAdapter(recyclerViewAdapter);
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                     DividerItemDecoration.VERTICAL);
@@ -124,23 +125,32 @@ public class MailFragment extends Fragment {
                 }
             });
             recyclerView.setVerticalScrollBarEnabled(true);
-            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener(){
+            LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getActivity());
+            recyclerView.setLayoutManager(linearLayoutManager);
+            final EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+                @Override
+                public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                    //TODO : Do something here.
+                    System.out.println("onLoadMore");
+                    System.out.println("page : "+page);
+                    System.out.println("totalItems : "+totalItemsCount);
+                    //Calculate item on totalItemsCount or only with page.
+                    this.resetState();
+                }
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    try {
-                        int topRowVerticalPosition =
-                                (recyclerView == null || recyclerView.getChildCount() == 0) ? 0 : recyclerView.getChildAt(0).getTop();
-                        swipeRefreshLayout.setEnabled(topRowVerticalPosition >= 0);
-                    } catch (IndexOutOfBoundsException e) {
-                        e.printStackTrace();
-                    }
+                    super.onScrolled(recyclerView,dx,dy);
+                    int topRowVerticalPosition =
+                            (recyclerView == null || recyclerView.getChildCount() == 0) ? 0 : recyclerView.getChildAt(0).getTop();
+                    swipeRefreshLayout.setEnabled(topRowVerticalPosition >= 0);
                 }
 
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
                 }
-            });
+            };
+            recyclerView.addOnScrollListener(scrollListener);
         //}
         return view;
     }
