@@ -96,27 +96,51 @@ public class MailClient {
         DummyContent.ITEMS.clear();
         DummyContent.ITEM_MAP.clear();
         String subject="",fromWho="",content="";
-
-        for (int i = 0; i<=10; i++) {
-            Message message=inbox.getMessage(messageCount-i);
-            //ExtractMail.writePart(message);
-            subject=message.getSubject();
-            fromWho=message.getFrom()[0].toString();
-            content=message.getContent().toString();
-            if (subject.equals(Constants.PUBLIC_KEY_SUBJECT_NAME)) {
-                Key key;
-                if (!db.checkIfExistsKey(fromWho)) {
-                    key=new Key(fromWho,content);
-                    db.getDatabase().insert(Key.TABLE_NAME,null,key.getContentValues());
-                    message.setFlag(Flags.Flag.DELETED,true);
-                } else {
-                    key=new Key(fromWho,content);
-                    db.getDatabase().update(Key.TABLE_NAME,key.getContentValues(),Key.EMAIL.getName()+"=?",new String[]{fromWho});
+        if (messageCount>10)
+        {
+            for (int i = 0; i<10; i++) {
+                Message message=inbox.getMessage(messageCount-i);
+                //ExtractMail.writePart(message);
+                subject=message.getSubject();
+                fromWho=message.getFrom()[0].toString();
+                content=message.getContent().toString();
+                if (subject.equals(Constants.PUBLIC_KEY_SUBJECT_NAME)) {
+                    Key key;
+                    if (!db.checkIfExistsKey(fromWho)) {
+                        key=new Key(fromWho,content);
+                        db.getDatabase().insert(Key.TABLE_NAME,null,key.getContentValues());
+                        message.setFlag(Flags.Flag.DELETED,true);
+                    } else {
+                        key=new Key(fromWho,content);
+                        db.getDatabase().update(Key.TABLE_NAME,key.getContentValues(),Key.EMAIL.getName()+"=?",new String[]{fromWho});
+                    }
+                    continue;
                 }
-                continue;
+                DummyContent.addItem(new DummyContent.DummyItem(fromWho,subject,ExtractMail.writePart(message,true)));
             }
-            DummyContent.addItem(new DummyContent.DummyItem(fromWho,subject,ExtractMail.writePart(message,true)));
+        } else {
+            for (int i = 0; i<messageCount; i++) {
+                Message message=inbox.getMessage(messageCount-i);
+                //ExtractMail.writePart(message);
+                subject=message.getSubject();
+                fromWho=message.getFrom()[0].toString();
+                content=message.getContent().toString();
+                if (subject.equals(Constants.PUBLIC_KEY_SUBJECT_NAME)) {
+                    Key key;
+                    if (!db.checkIfExistsKey(fromWho)) {
+                        key=new Key(fromWho,content);
+                        db.getDatabase().insert(Key.TABLE_NAME,null,key.getContentValues());
+                        message.setFlag(Flags.Flag.DELETED,true);
+                    } else {
+                        key=new Key(fromWho,content);
+                        db.getDatabase().update(Key.TABLE_NAME,key.getContentValues(),Key.EMAIL.getName()+"=?",new String[]{fromWho});
+                    }
+                    continue;
+                }
+                DummyContent.addItem(new DummyContent.DummyItem(fromWho,subject,ExtractMail.writePart(message,true)));
+            }
         }
+
         //inbox.close(true);
         //mReceiveStore.close();
     }
