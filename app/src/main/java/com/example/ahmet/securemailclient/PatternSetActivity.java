@@ -131,7 +131,7 @@ public class PatternSetActivity extends AppCompatActivity {
                 } else {
                     Intent intent=new Intent();
                     intent.putExtra("pattern",PatternLockUtils.patternToMD5(mPatternLockView,PatternLockUtils.stringToPattern(mPatternLockView,patternAsString)));
-                    setResult(RESULT_OK);
+                    setResult(RESULT_OK,intent);
                     finish();
                 }
             }

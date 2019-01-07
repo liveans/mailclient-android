@@ -57,7 +57,7 @@ public class MailDetailActivity extends AppCompatActivity {
                 try {
                     KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
                     Intent intent=new Intent(MailDetailActivity.this,PatternActivity.class);
-                    startActivity(intent);
+                    startActivityForResult(intent,LOCK_SCREEN_CODE);
                     //Intent screenLockIntent = keyguardManager.createConfirmDeviceCredentialIntent("SecureEmailClient", "You should enter your pattern to reach decrypted mail.");
                     //startActivityForResult(screenLockIntent, LOCK_SCREEN_CODE);
                 } catch (Exception e) {

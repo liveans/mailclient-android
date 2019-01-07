@@ -9,6 +9,7 @@ import com.andrognito.patternlockview.PatternLockView;
 import com.andrognito.patternlockview.listener.PatternLockViewListener;
 import com.andrognito.patternlockview.utils.PatternLockUtils;
 import com.andrognito.patternlockview.utils.ResourceUtils;
+import com.example.ahmet.securemailclient.database.DatabaseManager;
 
 import java.util.List;
 
@@ -18,11 +19,14 @@ public class PatternActivity extends AppCompatActivity {
     private TextView title;
     private TextView subTitle;
     private TextView message;
+    private DatabaseManager manager;
 
     private PatternLockViewListener mPatternLockViewListener = new PatternLockViewListener() {
         @Override
         public void onStarted() {
             Log.d(getClass().getName(), "Pattern drawing started");
+            message.setText("Pull your finger when finished.");
+            message.setTextColor(getResources().getColor(android.R.color.white,null));
         }
 
         @Override
@@ -35,10 +39,16 @@ public class PatternActivity extends AppCompatActivity {
         public void onComplete(List<PatternLockView.Dot> pattern) {
             Log.d(getClass().getName(), "Pattern complete: " +
                     PatternLockUtils.patternToString(mPatternLockView, pattern));
-            mPatternLockView.clearPattern();
-            message.setVisibility(TextView.VISIBLE);
-            message.setText("Wrong pattern.");
-            message.setTextColor(getResources().getColor(android.R.color.holo_red_light,null));
+            if (PatternLockUtils.patternToMD5(mPatternLockView,pattern).equals(Constants.patternAsMD5)) {
+                setResult(RESULT_OK);
+                finish();
+            }
+            else {
+                mPatternLockView.clearPattern();
+                message.setVisibility(TextView.VISIBLE);
+                message.setText("Wrong pattern.");
+                message.setTextColor(getResources().getColor(android.R.color.holo_red_light,null));
+            }
         }
 
         @Override
@@ -54,7 +64,9 @@ public class PatternActivity extends AppCompatActivity {
         title=findViewById(R.id.pattern_title);
         subTitle=findViewById(R.id.pattern_subtitle);
         message=findViewById(R.id.pattern_message);
-
+        manager=new DatabaseManager(SecureClientApplication.getAppContext());
+        message.setText("Draw your pattern.");
+        message.setTextColor(getResources().getColor(android.R.color.white,null));
         mPatternLockView = (PatternLockView) findViewById(R.id.pattern_lock_view);
         mPatternLockView.setDotCount(3);
         mPatternLockView.setDotNormalSize((int) ResourceUtils.getDimensionInPx(this, R.dimen.pattern_lock_dot_size));

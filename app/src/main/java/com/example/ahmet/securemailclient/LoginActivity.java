@@ -58,7 +58,6 @@ import static android.Manifest.permission.READ_CONTACTS;
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
-    private final int PATTERN_SET_CODE=254;
     private UserLoginTask mAuthTask = null;
 
     // UI references.
@@ -66,8 +65,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    //private SharedPreferences sharedPreferences;
-    //private SharedPreferences.Editor sharedPreferencesEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,13 +147,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             Constants.email=email;
                             Constants.password=password;
                             Constants.patternAsMD5=db.getPattern(email);
-                            if (Constants.patternAsMD5==null) {
-                                Intent intent=new Intent(LoginActivity.this,PatternSetActivity.class);
-                                startActivityForResult(intent,PATTERN_SET_CODE);
-                            } else {
-                                Intent intent=new Intent(LoginActivity.this,MainActivity.class);
-                                startActivity(intent);
-                            }
+                            Intent intent=new Intent(LoginActivity.this,MainActivity.class);
+                            startActivity(intent);
                         }
                     } catch (ExecutionException e) {
                         e.printStackTrace();
@@ -165,21 +157,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     }
                 }
             }).start();
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case PATTERN_SET_CODE:
-                if (resultCode==RESULT_OK)
-                {
-                    Constants.patternAsMD5=data.getStringExtra("pattern");
-                    Intent intent=new Intent(LoginActivity.this,MainActivity.class);
-                    startActivity(intent);
-                }
-                break;
         }
     }
 

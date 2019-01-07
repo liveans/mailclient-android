@@ -32,13 +32,27 @@ public class DatabaseManager {
         return false;
     }
 
+    public Account getAccount(String email) {
+        Account account=new Account();
+        Cursor cursor=getDatabase().rawQuery("select * from "+Account.TABLE_NAME+" where "+Account.EMAIL.getName()+"=?",new String[] {email});
+        if (cursor!=null && cursor.getCount()>0) {
+            cursor.moveToFirst();
+            account.setEmail(cursor.getString(cursor.getColumnIndex(Account.EMAIL.getName())));
+            account.setPublicKey(cursor.getString(cursor.getColumnIndex(Account.PUBLIC_KEY.getName())));
+            account.setSecretKey(cursor.getString(cursor.getColumnIndex(Account.SECRET_KEY.getName())));
+            account.setPasswordKey(cursor.getString(cursor.getColumnIndex(Account.PASSWORD_KEY.getName())));
+            account.setPattern(cursor.getString(cursor.getColumnIndex(Account.PATTERN.getName())));
+        }
+        return account;
+    }
+
     public String getPattern(String email) {
         Cursor cursor=getDatabase().rawQuery("select * from "+Account.TABLE_NAME+" where "+Account.EMAIL.getName()+"=?",new String[] {email});
         if (cursor!=null && cursor.getCount()>0) {
             cursor.moveToFirst();
             return cursor.getString(cursor.getColumnIndex(Account.PATTERN.getName()));
         }
-        return null;
+        return "N/A";
     }
 
     public boolean checkIfExistsKey(String email) {

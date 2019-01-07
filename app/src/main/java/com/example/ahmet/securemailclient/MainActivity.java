@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
@@ -22,7 +23,9 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import com.example.ahmet.securemailclient.database.DatabaseManager;
 import com.example.ahmet.securemailclient.dummy.DummyContent;
+import com.example.ahmet.securemailclient.model.Account;
 
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
@@ -34,6 +37,8 @@ import java.util.concurrent.Executors;
 import javax.mail.MessagingException;
 
 public class MainActivity extends AppCompatActivity implements MailFragment.OnListFragmentInteractionListener {
+
+    private final int PATTERN_SET_CODE=254;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +86,19 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
                             public void run() {
                                 if (MailFragment.getInstance()!=null) {
                                     MailFragment.getInstance().refreshData();
+                                    if (Constants.patternAsMD5.equals("N/A")) {
+                                        AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+                                        alert.setTitle("Pattern Not Found!");
+                                        alert.setMessage("You should set your pattern to decrypt your encrypted emails.");
+                                        alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                Intent intent = new Intent(MainActivity.this,PatternSetActivity.class);
+                                                startActivityForResult(intent,PATTERN_SET_CODE);
+                                            }
+                                        });
+                                        alert.show();
+                                    }
                                 }
                             }
                         });
@@ -99,6 +117,20 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
             }
         });
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode==PATTERN_SET_CODE) {
+            if (resultCode==RESULT_OK) {
+                DatabaseManager db=new DatabaseManager(SecureClientApplication.getAppContext());
+                Account account=db.getAccount(Constants.email);
+                Constants.patternAsMD5=data.getStringExtra("pattern");
+                account.setPattern(Constants.patternAsMD5);
+                db.getDatabase().update(Account.TABLE_NAME,account.getContentValues(),Account.EMAIL.getName()+"=?",new String[] {Constants.email});
+            }
+        }
     }
 
     @Override

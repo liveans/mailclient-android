@@ -317,6 +317,7 @@ public class PgpUtils {
                     System.out.println("no data");
                     Account account=new Account();
                     account.setEmail(mEmail);
+                    account.setPattern("N/A");
                     pgpPassword=UUID.randomUUID().toString();
                     Constants.pgpPassword=pgpPassword;
                     account.setPasswordKey(pgpPassword);

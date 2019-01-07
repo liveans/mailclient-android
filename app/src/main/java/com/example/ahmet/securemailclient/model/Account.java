@@ -17,6 +17,14 @@ public class Account {
     private int id;
     private String email,publicKey,secretKey,passwordKey,pattern;
 
+    public String getPattern() {
+        return pattern;
+    }
+
+    public void setPattern(String pattern) {
+        this.pattern = pattern;
+    }
+
     static {
         ID.setAutoIncrement(true);
         ID.setPrimary(true);
