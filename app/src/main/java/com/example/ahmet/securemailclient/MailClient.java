@@ -9,6 +9,8 @@ import com.example.ahmet.securemailclient.dummy.DummyContent;
 import com.example.ahmet.securemailclient.model.Key;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
 
 import javax.mail.AuthenticationFailedException;
@@ -86,19 +88,80 @@ public class MailClient {
         }
     }
 
-    public void receive() throws MessagingException,IOException {
+    public void receiveMore(int totalItems) throws MessagingException,IOException {
+        setupIMAPConnection();
+        DatabaseManager db=new DatabaseManager(SecureClientApplication.getAppContext());
+        Folder inbox = mReceiveStore.getFolder("inbox");
+        inbox.open(Folder.READ_WRITE);
+        int messageCount = inbox.getMessageCount()-totalItems;
+        System.out.println("Total Messages in INBOX:- " + messageCount);
+        String subject="",fromWho="",content="";
+        if (messageCount<0) {
+            return;
+        }
+
+        if (messageCount>10)
+        {
+            for (int i = 0; i<10; i++) {
+                Message message=inbox.getMessage(messageCount-i);
+                //ExtractMail.writePart(message);
+                subject=message.getSubject();
+                fromWho=message.getFrom()[0].toString();
+                content=message.getContent().toString();
+                if (subject.equals(Constants.PUBLIC_KEY_SUBJECT_NAME)) {
+                    Key key;
+                    if (!db.checkIfExistsKey(fromWho)) {
+                        key=new Key(fromWho,content);
+                        db.getDatabase().insert(Key.TABLE_NAME,null,key.getContentValues());
+                        message.setFlag(Flags.Flag.DELETED,true);
+                    } else {
+                        key=new Key(fromWho,content);
+                        db.getDatabase().update(Key.TABLE_NAME,key.getContentValues(),Key.EMAIL.getName()+"=?",new String[]{fromWho});
+                    }
+                    continue;
+                }
+                DummyContent.addItem(new DummyContent.DummyItem(fromWho,subject,ExtractMail.writePart(message,true)));
+            }
+        } else {
+            for (int i = 0; i<messageCount; i++) {
+                Message message=inbox.getMessage(messageCount-i);
+                //ExtractMail.writePart(message);
+                subject=message.getSubject();
+                fromWho=message.getFrom()[0].toString();
+                content=message.getContent().toString();
+                if (subject.equals(Constants.PUBLIC_KEY_SUBJECT_NAME)) {
+                    Key key;
+                    if (!db.checkIfExistsKey(fromWho)) {
+                        key=new Key(fromWho,content);
+                        db.getDatabase().insert(Key.TABLE_NAME,null,key.getContentValues());
+                        message.setFlag(Flags.Flag.DELETED,true);
+                    } else {
+                        key=new Key(fromWho,content);
+                        db.getDatabase().update(Key.TABLE_NAME,key.getContentValues(),Key.EMAIL.getName()+"=?",new String[]{fromWho});
+                    }
+                    continue;
+                }
+                DummyContent.addItem(new DummyContent.DummyItem(fromWho,subject,ExtractMail.writePart(message,true)));
+            }
+        }
+
+        //inbox.close(true);
+        //mReceiveStore.close();
+    }
+
+    public void receive(int items) throws MessagingException,IOException {
         setupIMAPConnection();
         DatabaseManager db=new DatabaseManager(SecureClientApplication.getAppContext());
         Folder inbox = mReceiveStore.getFolder("inbox");
         inbox.open(Folder.READ_WRITE);
         int messageCount = inbox.getMessageCount();
         System.out.println("Total Messages in INBOX:- " + messageCount);
-        DummyContent.ITEMS.clear();
-        DummyContent.ITEM_MAP.clear();
+        //DummyContent.ITEMS.clear();
+        //DummyContent.ITEM_MAP.clear();
         String subject="",fromWho="",content="";
-        if (messageCount>10)
+        if (messageCount>items)
         {
-            for (int i = 0; i<10; i++) {
+            for (int i = 0; i<items; i++) {
                 Message message=inbox.getMessage(messageCount-i);
                 //ExtractMail.writePart(message);
                 subject=message.getSubject();

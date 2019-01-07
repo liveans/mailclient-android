@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
                 try {
                     Security.addProvider(new BouncyCastleProvider());
                     PgpUtils.getInstance(Constants.email);
-                    MailClient.getInstance().receive();
+                    MailClient.getInstance().receive(15);
                 } catch (MessagingException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -133,6 +133,66 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
         }
     }
 
+    private void loadMoreData(final int totalItems) {
+        ExecutorService executorService=Executors.newSingleThreadExecutor();
+        final ProgressDialog dialog=ProgressDialog.show(MainActivity.this, "Loading",
+                "Receiving your emails to load more mail. Please wait...", true);
+
+        executorService.submit(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    MailClient.getInstance().receiveMore(totalItems);
+                } catch (MessagingException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    if (dialog!=null) {
+                        dialog.setIndeterminate(false);
+                        dialog.dismiss();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (MailFragment.getInstance()!=null) {
+                                    MailFragment.getInstance().refreshData();
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }));
+        executorService.shutdown();
+    }
+
+    private void generateNewKey() {
+        ExecutorService executorService=Executors.newSingleThreadExecutor();
+        final ProgressDialog dialog=ProgressDialog.show(MainActivity.this, "Generating..",
+                "Your keys are changing. Please wait...", true);
+
+        executorService.submit(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    PgpUtils.getInstance().generateNewKey();
+                    System.out.println("generated in New Key");
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    if (dialog!=null) {
+                        dialog.setIndeterminate(false);
+                        dialog.dismiss();
+                    }
+                }
+            }
+        }));
+        executorService.shutdown();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -150,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
         //noinspection SimplifiableIfStatement
         Intent menuIntent=null;
         switch (id) {
-            case R.id.action_share_key:
+            /*case R.id.action_share_key:
                 menuIntent=new Intent(MainActivity.this,ShareActivity.class);
                 break;
             case R.id.action_read_qr_code:
@@ -173,6 +233,13 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
                 } else {
                     menuIntent=new Intent(MainActivity.this,QRCodeScanner.class);
                 }
+                break;*/
+            case R.id.change_keys:
+                generateNewKey();
+                System.out.println("generated.");
+                break;
+            case R.id.load_more:
+                loadMoreData(DummyContent.ITEMS.size());
                 break;
             case R.id.send_public_key:
                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);

@@ -19,7 +19,7 @@ public class QRCodeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrcode);
         getSupportActionBar().setSubtitle("Share Public Key as QR Code");
-        ImageView imageView=findViewById(R.id.imageView);
+        ImageView imageView=findViewById(R.id.imageViewQr);
         String text=Constants.email+Constants.DELIMITER_KEY+Constants.pgpPublicKey;
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
         try {

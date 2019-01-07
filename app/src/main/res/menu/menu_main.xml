@@ -3,18 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.ahmet.securemailclient.MainActivity">
     <item
-        android:id="@+id/action_share_key"
-        android:icon="@android:drawable/ic_menu_share"
-        android:orderInCategory="100"
-        android:title="@string/share_key"
-        app:showAsAction="always" />
-    <item
-        android:id="@+id/action_read_qr_code"
-        android:orderInCategory="100"
-        android:icon="@android:drawable/ic_menu_camera"
-        android:title="@string/read_qr_code"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/send_public_key"
         android:orderInCategory="100"
         android:icon="@android:drawable/ic_menu_send"
@@ -24,6 +12,12 @@
         android:id="@+id/change_keys"
         android:orderInCategory="100"
         android:icon="@android:drawable/ic_menu_upload"
-        android:title="@string/read_qr_code"
+        android:title="@string/generate_key"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/load_more"
+        android:orderInCategory="100"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="@string/load_more_mail"
         app:showAsAction="always" />
 </menu>

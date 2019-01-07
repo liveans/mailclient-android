@@ -3,6 +3,7 @@ package com.example.ahmet.securemailclient;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
@@ -33,7 +34,8 @@ public class MailFragment extends Fragment {
     private MyMailRecyclerViewAdapter recyclerViewAdapter;
     private RecyclerView recyclerView;
     public static MailFragment instance=null;
-
+    private boolean state=false;
+    private boolean stateActive=true;
 
     public void refreshData() {
         recyclerViewAdapter.notifyDataSetChanged();
@@ -100,7 +102,7 @@ public class MailFragment extends Fragment {
                         @Override
                         public void run() {
                             try {
-                                MailClient.getInstance().receive();
+                                MailClient.getInstance().receive(DummyContent.ITEMS.size());
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -127,16 +129,61 @@ public class MailFragment extends Fragment {
             recyclerView.setVerticalScrollBarEnabled(true);
             LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getActivity());
             recyclerView.setLayoutManager(linearLayoutManager);
-            final EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            /*final EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
                 @Override
-                public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                    //TODO : Do something here.
-                    System.out.println("onLoadMore");
-                    System.out.println("page : "+page);
-                    System.out.println("totalItems : "+totalItemsCount);
-                    //Calculate item on totalItemsCount or only with page.
-                    this.resetState();
+                public void onLoadMore(int page, final int totalItemsCount, RecyclerView view) {
+                    if (state || !state) return;
+
+                    final ProgressDialog dialog=ProgressDialog.show(getActivity(), "Loading",
+                            "We are receiving your emails to load more on your list. Please wait...", true);
+                    ExecutorService service=Executors.newSingleThreadExecutor();
+                    service.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                state=false;
+                                stateActive=false;
+                                MailClient.getInstance().receiveMore(totalItemsCount);
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        MailFragment.getInstance().refreshData();
+                                        if (dialog!=null) {
+                                            dialog.setIndeterminate(false);
+                                            dialog.dismiss();
+                                        }
+                                        recyclerView.scrollToPosition(totalItemsCount+1);
+                                        state=true;
+                                    }
+                                });
+                                //swipeRefreshLayout.setRefreshing(false);
+                            } catch (MessagingException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    service.shutdown();
                 }
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView,dx,dy);
+                    int topRowVerticalPosition =
+                            (recyclerView == null || recyclerView.getChildCount() == 0) ? 0 : recyclerView.getChildAt(0).getTop();
+                    swipeRefreshLayout.setEnabled(topRowVerticalPosition >= 0);
+                    if (state && !stateActive) {
+                        stateActive=true;
+                        this.resetState();
+                    }
+                }
+
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                }
+            };*/
+            recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                     super.onScrolled(recyclerView,dx,dy);
@@ -149,12 +196,11 @@ public class MailFragment extends Fragment {
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
                 }
-            };
-            recyclerView.addOnScrollListener(scrollListener);
+            });
         //}
+        state=true;
         return view;
     }
-
 
     @Override
     public void onAttach(Context context) {

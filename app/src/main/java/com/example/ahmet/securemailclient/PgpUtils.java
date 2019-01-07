@@ -358,6 +358,49 @@ public class PgpUtils {
         }
     }
 
+    public synchronized void generateNewKey () {
+        if (pgpSec != null) {
+            try {
+                DatabaseManager db = new DatabaseManager(SecureClientApplication.getAppContext());
+                System.out.println("updating");
+                Account account = db.getAccount(Constants.email);
+
+                pgpPassword = UUID.randomUUID().toString();
+                Constants.pgpPassword = pgpPassword;
+                account.setPasswordKey(pgpPassword);
+                final PGPKeyRingGenerator krgen = generateKeyRingGenerator(keyId, pgpPassword.toCharArray());
+                skr = krgen.generateSecretKeyRing();
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ArmoredOutputStream sout = new ArmoredOutputStream(baos);
+                skr.encode(sout);
+                sout.close();
+                account.setSecretKey(new String(baos.toByteArray(), Charset.defaultCharset()));
+                Constants.pgpSecretKey = new String(baos.toByteArray(), Charset.defaultCharset());
+                //System.out.println(new String(baos.toByteArray(),Charset.defaultCharset()));
+                baos.close();
+
+                pkr = krgen.generatePublicKeyRing();
+                baos = new ByteArrayOutputStream();
+                sout = new ArmoredOutputStream(baos);
+                pkr.encode(sout);
+                sout.close();
+                account.setPublicKey(new String(baos.toByteArray(), Charset.defaultCharset()));
+                Constants.pgpPublicKey = new String(baos.toByteArray(), Charset.defaultCharset());
+                //System.out.println(new String(baos.toByteArray(),Charset.defaultCharset()));
+                baos.close();
+                db.getDatabase().update(Account.TABLE_NAME,account.getContentValues(),Account.EMAIL.getName()+"=?",new String[] { Constants.email });
+                System.out.println("updated.");
+                pgpSec = skr.getSecretKey();
+            } catch (PGPException pgpe) {
+                pgpe.printStackTrace();
+            } catch (Exception pgpe) {
+                pgpe.printStackTrace();
+
+            }
+        }
+    }
+
     public String createSignature(String data, boolean armor) throws GeneralSecurityException, IOException, PGPException
     {
 
