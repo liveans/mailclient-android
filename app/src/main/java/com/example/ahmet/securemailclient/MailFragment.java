@@ -108,7 +108,7 @@ public class MailFragment extends Fragment {
                             try {
                                 MailClient.getInstance().receive();
                                 MailFragment.getInstance().refreshData();
-                                swipeRefreshLayout.setRefreshing(false);
+                                swipeRefreshLayout.setEnabled(false);
                                 //swipeRefreshLayout.setRefreshing(false);
                             } catch (MessagingException e) {
                                 e.printStackTrace();

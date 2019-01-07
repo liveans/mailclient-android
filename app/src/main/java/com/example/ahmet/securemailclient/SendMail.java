@@ -132,7 +132,7 @@ public class SendMail extends AppCompatActivity {
                         try {
                             if (toWhom.getText().toString().contains("@")) {
                                 if (encrypt.isChecked()){
-                                    text=message.getText().toString()+Constants.DELIMITER_KEY+PgpUtils.getInstance().createSignature(text,true);
+                                    text=message.getText().toString()+Constants.DELIMITER_KEY+PgpUtils.getInstance().createSignature(message.getText().toString(),true);
                                     text=PgpUtils.getInstance().encrypt(text,hashMap.get(toWhom.getText().toString()));
                                     subjectStr=Constants.ENCRYPTED_MESSAGE_HEADER_NAME+subject.getText().toString();
 

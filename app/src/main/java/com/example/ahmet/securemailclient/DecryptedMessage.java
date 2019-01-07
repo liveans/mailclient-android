@@ -25,12 +25,12 @@ public class DecryptedMessage extends AppCompatActivity {
             if (PgpUtils.getInstance().verifySignature(items[0],items[1],publicKeyFromEmail)) {
                 decryptedMessageTextView.setText(items[0]);
             } else {
-                decryptedMessageTextView.setText("Hata Hata Hata Hata Hata Hata Hata");
+                decryptedMessageTextView.setText("Unfortunately, the text and signature aren't verified with each other.");
             }
 
         } catch (Exception e) {
             //TODO : Alert Dialog show.
-            decryptedMessageTextView.setText("Bu mesaj mail adresine ait değil. Dışarıdan bir key ile şifrelenip yollanmış.");
+            decryptedMessageTextView.setText("This text signature and public key aren't verified with each other. Try to send your public key and let it send again.");
             e.printStackTrace();
         }
     }

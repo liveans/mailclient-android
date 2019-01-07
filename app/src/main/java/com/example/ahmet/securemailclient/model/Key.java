@@ -44,7 +44,7 @@ public class Key {
     public static String createTableIfNotExists() {
         StringBuilder builder=new StringBuilder();
         builder.append("CREATE TABLE IF NOT EXISTS").append(" ");
-        builder.append(TABLE_NAME).append(" (");
+        builder.append(Key.TABLE_NAME).append(" (");
         int i = 0;
         while(i<COLUMNS.size()) {
             builder.append(COLUMNS.get(i).toString());
