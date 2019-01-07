@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity implements MailFragment.OnLi
         transaction.commit();
 
         ExecutorService executorService=Executors.newSingleThreadExecutor();
-        final ProgressDialog dialog=ProgressDialog.show(MainActivity.this, "Connecting",
-                "Connecting. Please wait...", true);
+        final ProgressDialog dialog=ProgressDialog.show(MainActivity.this, "Connected",
+                "Receiving your emails. Please wait...", true);
         /*if (!MailClient.getInstance().isConnected) {
             executorService.submit(new Thread(new Runnable() {
                 @Override
