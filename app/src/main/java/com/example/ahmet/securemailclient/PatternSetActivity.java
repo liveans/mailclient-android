@@ -109,6 +109,8 @@ public class PatternSetActivity extends AppCompatActivity {
         message=findViewById(R.id.set_pattern_message);
         cancel=findViewById(R.id.set_pattern_cancel_button);
         ok=findViewById(R.id.set_pattern_ok_button);
+        title.setText("Secure Email Client");
+        subTitle.setText("You should draw pattern to decrypt your encrypted emails.");
         message.setVisibility(TextView.VISIBLE);
         message.setText("Draw your pattern.");
         message.setTextColor(getResources().getColor(android.R.color.white,null));

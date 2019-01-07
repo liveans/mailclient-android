@@ -45,7 +45,6 @@ public class PatternActivity extends AppCompatActivity {
             }
             else {
                 mPatternLockView.clearPattern();
-                message.setVisibility(TextView.VISIBLE);
                 message.setText("Wrong pattern.");
                 message.setTextColor(getResources().getColor(android.R.color.holo_red_light,null));
             }
@@ -65,8 +64,11 @@ public class PatternActivity extends AppCompatActivity {
         subTitle=findViewById(R.id.pattern_subtitle);
         message=findViewById(R.id.pattern_message);
         manager=new DatabaseManager(SecureClientApplication.getAppContext());
+        message.setVisibility(TextView.VISIBLE);
         message.setText("Draw your pattern.");
         message.setTextColor(getResources().getColor(android.R.color.white,null));
+        title.setText("Secure Email Client");
+        subTitle.setText("You should draw pattern to decrypt your encrypted emails.");
         mPatternLockView = (PatternLockView) findViewById(R.id.pattern_lock_view);
         mPatternLockView.setDotCount(3);
         mPatternLockView.setDotNormalSize((int) ResourceUtils.getDimensionInPx(this, R.dimen.pattern_lock_dot_size));
