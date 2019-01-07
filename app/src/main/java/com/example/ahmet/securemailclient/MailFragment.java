@@ -1,5 +1,6 @@
 package com.example.ahmet.securemailclient;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -101,14 +102,25 @@ public class MailFragment extends Fragment {
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
+                    final ProgressDialog dialog=ProgressDialog.show(getActivity(), "Refreshing",
+                            "We are receiving your emails to refresh your list. Please wait...", true);
                     ExecutorService service=Executors.newSingleThreadExecutor();
                     service.submit(new Runnable() {
                         @Override
                         public void run() {
                             try {
                                 MailClient.getInstance().receive();
-                                MailFragment.getInstance().refreshData();
-                                swipeRefreshLayout.setEnabled(false);
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        MailFragment.getInstance().refreshData();
+                                        swipeRefreshLayout.setRefreshing(false);
+                                        if (dialog!=null) {
+                                            dialog.setIndeterminate(false);
+                                            dialog.dismiss();
+                                        }
+                                    }
+                                });
                                 //swipeRefreshLayout.setRefreshing(false);
                             } catch (MessagingException e) {
                                 e.printStackTrace();
@@ -125,10 +137,13 @@ public class MailFragment extends Fragment {
             recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener(){
                 @Override
                 public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    int topRowVerticalPosition =
-                            (recyclerView == null || recyclerView.getChildCount() == 0) ? 0 : recyclerView.getChildAt(0).getTop();
-                    swipeRefreshLayout.setEnabled(topRowVerticalPosition >= 0);
-                    //swipeRefreshLayout.setRefreshing(topRowVerticalPosition>=0);
+                    try {
+                        int topRowVerticalPosition =
+                                (recyclerView == null || recyclerView.getChildCount() == 0) ? 0 : recyclerView.getChildAt(0).getTop();
+                        swipeRefreshLayout.setEnabled(topRowVerticalPosition >= 0);
+                    } catch (IndexOutOfBoundsException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
