@@ -13,6 +13,7 @@ public class Constants {
     public static String pgpPassword;
     public static String email;
     public static String password;
+    public static String patternAsMD5;
 
     //Database
     public static final String DATABASE_NAME="accountDb";

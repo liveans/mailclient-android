@@ -1,8 +1,10 @@
 package com.example.ahmet.securemailclient;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -22,10 +24,20 @@ public class PatternSetActivity extends AppCompatActivity {
     private Button cancel;
     private Button ok;
 
+    private boolean isSecond=false;
+    private String patternAsString="";
+
+    private final String CANCEL="CANCEL";
+    private final String TRY_AGAIN="TRY AGAIN";
+    private final String CONTINUE="CONTINUE";
+    private final String CONFIRM="CONFIRM";
+
     private PatternLockViewListener mPatternLockViewListener = new PatternLockViewListener() {
         @Override
         public void onStarted() {
             Log.d(getClass().getName(), "Pattern drawing started");
+            message.setTextColor(getResources().getColor(android.R.color.white,null));
+            message.setText("Pull your finger when finished.");
         }
 
         @Override
@@ -36,12 +48,33 @@ public class PatternSetActivity extends AppCompatActivity {
 
         @Override
         public void onComplete(List<PatternLockView.Dot> pattern) {
+            String stringPattern=PatternLockUtils.patternToString(mPatternLockView,pattern);
             Log.d(getClass().getName(), "Pattern complete: " +
                     PatternLockUtils.patternToString(mPatternLockView, pattern));
-            mPatternLockView.clearPattern();
-            message.setVisibility(TextView.VISIBLE);
-            message.setText("Wrong pattern.");
-            message.setTextColor(getResources().getColor(android.R.color.holo_red_light,null));
+            mPatternLockView.setInputEnabled(false);
+            cancel.setEnabled(true);
+            if (!isSecond) {
+                if (stringPattern.length()<4) {
+                    message.setText("You should draw with minimum 4 pattern dots.");
+                    message.setTextColor(getResources().getColor(android.R.color.holo_red_light,null));
+                    return;
+                }
+            } else {
+                if (!patternAsString.equals(PatternLockUtils.patternToString(mPatternLockView,pattern))) {
+                    message.setText("Patterns aren't equal.");
+                    message.setTextColor(getResources().getColor(android.R.color.holo_red_light,null));
+                    return;
+                }
+            }
+
+            ok.setEnabled(true);
+            if (!isSecond) {
+                patternAsString=PatternLockUtils.patternToString(mPatternLockView,pattern);
+                message.setText("Saved your pattern.");
+            } else {
+                message.setText("Your unlock pattern is set as follows.");
+            }
+            message.setTextColor(getResources().getColor(android.R.color.holo_green_light,null));
         }
 
         @Override
@@ -50,6 +83,23 @@ public class PatternSetActivity extends AppCompatActivity {
         }
     };
 
+    private void refresh() {
+        mPatternLockView.setInputEnabled(true);
+        if (!isSecond) {
+            message.setText("Draw your pattern.");
+            message.setTextColor(getResources().getColor(android.R.color.white,null));
+            ok.setText(CONTINUE);
+        } else {
+            message.setText("Draw your pattern to confirm.");
+            message.setTextColor(getResources().getColor(android.R.color.white,null));
+            ok.setText(CONFIRM);
+        }
+        cancel.setText(TRY_AGAIN);
+        ok.setEnabled(false);
+        cancel.setEnabled(false);
+        mPatternLockView.clearPattern();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +107,35 @@ public class PatternSetActivity extends AppCompatActivity {
         title=findViewById(R.id.set_pattern_title);
         subTitle=findViewById(R.id.set_pattern_subtitle);
         message=findViewById(R.id.set_pattern_message);
-
+        cancel=findViewById(R.id.set_pattern_cancel_button);
+        ok=findViewById(R.id.set_pattern_ok_button);
+        message.setVisibility(TextView.VISIBLE);
+        message.setText("Draw your pattern.");
+        message.setTextColor(getResources().getColor(android.R.color.white,null));
+        ok.setText(CONTINUE);
+        cancel.setText(TRY_AGAIN);
+        ok.setEnabled(false);
+        cancel.setEnabled(false);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refresh();
+            }
+        });
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ok.getText().toString().equals(CONTINUE)) {
+                    isSecond=true;
+                    refresh();
+                } else {
+                    Intent intent=new Intent();
+                    intent.putExtra("pattern",PatternLockUtils.patternToMD5(mPatternLockView,PatternLockUtils.stringToPattern(mPatternLockView,patternAsString)));
+                    setResult(RESULT_OK);
+                    finish();
+                }
+            }
+        });
         mPatternLockView = (PatternLockView) findViewById(R.id.set_pattern_lock_view);
         mPatternLockView.setDotCount(3);
         mPatternLockView.setDotNormalSize((int) ResourceUtils.getDimensionInPx(this, R.dimen.pattern_lock_dot_size));

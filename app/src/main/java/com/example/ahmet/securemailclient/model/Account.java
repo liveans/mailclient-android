@@ -12,9 +12,10 @@ public class Account {
     public static final Column PUBLIC_KEY = new Column("publicKey", Column.Type.TEXT);
     public static final Column SECRET_KEY = new Column("secretKey", Column.Type.TEXT);
     public static final Column PASSWORD_KEY = new Column("passwordKey", Column.Type.TEXT);
+    public static final Column PATTERN = new Column("pattern",Column.Type.TEXT);
 
     private int id;
-    private String email,publicKey,secretKey,passwordKey;
+    private String email,publicKey,secretKey,passwordKey,pattern;
 
     static {
         ID.setAutoIncrement(true);
@@ -25,22 +26,24 @@ public class Account {
         COLUMNS.add(PUBLIC_KEY);
         COLUMNS.add(SECRET_KEY);
         COLUMNS.add(PASSWORD_KEY);
+        COLUMNS.add(PATTERN);
     }
 
     public Account() {
 
     }
 
-    public Account(String email,String publicKey,String secretKey,String passwordKey) {
+    public Account(String email,String publicKey,String secretKey,String passwordKey,String pattern) {
         this.id=-1;
         this.email=email;
         this.publicKey=publicKey;
         this.secretKey=secretKey;
         this.passwordKey=passwordKey;
+        this.pattern=pattern;
     }
 
-    public Account(int id,String email,String publicKey,String secretKey,String passwordKey) {
-        this(email,publicKey,secretKey,passwordKey);
+    public Account(int id,String email,String publicKey,String secretKey,String passwordKey,String pattern) {
+        this(email,publicKey,secretKey,passwordKey,pattern);
         this.id=id;
     }
 
@@ -50,6 +53,7 @@ public class Account {
         values.put(PUBLIC_KEY.getName(),publicKey);
         values.put(SECRET_KEY.getName(),secretKey);
         values.put(PASSWORD_KEY.getName(),passwordKey);
+        values.put(PATTERN.getName(),pattern);
         return values;
     }
     //public static final String ACCOUNT_DATABASE_CREATE = "create table if not exists Accounts (id integer primary key,mail text not null,pgpPublicKey text not null,pgpSecretKey text not null,pgpPassword text not null)";
