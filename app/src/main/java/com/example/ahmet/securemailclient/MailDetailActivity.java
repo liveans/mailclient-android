@@ -56,8 +56,10 @@ public class MailDetailActivity extends AppCompatActivity {
                   //      .setAction("Action", null).show();
                 try {
                     KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
-                    Intent screenLockIntent = keyguardManager.createConfirmDeviceCredentialIntent("SecureEmailClient", "You should enter your pattern to reach decrypted mail.");
-                    startActivityForResult(screenLockIntent, LOCK_SCREEN_CODE);
+                    Intent intent=new Intent(MailDetailActivity.this,PatternActivity.class);
+                    startActivity(intent);
+                    //Intent screenLockIntent = keyguardManager.createConfirmDeviceCredentialIntent("SecureEmailClient", "You should enter your pattern to reach decrypted mail.");
+                    //startActivityForResult(screenLockIntent, LOCK_SCREEN_CODE);
                 } catch (Exception e) {
                     Toast.makeText(MailDetailActivity.this,"You should use your lock to open mail.",Toast.LENGTH_LONG);
                     e.printStackTrace();
@@ -81,37 +83,37 @@ public class MailDetailActivity extends AppCompatActivity {
                         .authenticate(new BiometricCallback() {
                             @Override
                             public void onSdkVersionNotSupported() {
-                                System.out.println("a");
+                                System.out.println("SdkNotSupported");
                             }
 
                             @Override
                             public void onBiometricAuthenticationNotSupported() {
-                                System.out.println("b");
+                                System.out.println("Not Supported");
                             }
 
                             @Override
                             public void onBiometricAuthenticationNotAvailable() {
-                                System.out.println("c");
+                                System.out.println("Auth Not Available");
                             }
 
                             @Override
                             public void onBiometricAuthenticationPermissionNotGranted() {
-                                System.out.println("d");
+                                System.out.println("Permission Not Granted");
                             }
 
                             @Override
                             public void onBiometricAuthenticationInternalError(String error) {
-                                System.out.println("e");
+                                System.out.println(error);
                             }
 
                             @Override
                             public void onAuthenticationFailed() {
-                                System.out.println("f");
+                                System.out.println("Auth fail");
                             }
 
                             @Override
                             public void onAuthenticationCancelled() {
-                                System.out.println("g");
+                                System.out.println("Auth cancel");
                             }
 
                             @Override
@@ -123,7 +125,7 @@ public class MailDetailActivity extends AppCompatActivity {
 
                             @Override
                             public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
-                                System.out.println("h");
+                                System.out.println(helpString);
                             }
 
                             @Override

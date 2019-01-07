@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
-    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -39,7 +39,9 @@
             android:label="@string/title_activity_mail_detail"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".DecryptedMessage" />
-        <activity android:name=".FingerprintActivity"></activity>
+        <activity android:name=".FingerprintActivity" />
+        <activity android:name=".PatternActivity" />
+        <activity android:name=".PatternSetActivity"></activity>
     </application>
 
 </manifest>
