@@ -328,6 +328,7 @@ public class PgpUtils {
                     skr.encode(sout);
                     sout.close();
                     account.setSecretKey(new String(baos.toByteArray(),Charset.defaultCharset()));
+                    Constants.pgpSecretKey=new String(baos.toByteArray(),Charset.defaultCharset());
                     //System.out.println(new String(baos.toByteArray(),Charset.defaultCharset()));
                     baos.close();
 
@@ -337,6 +338,7 @@ public class PgpUtils {
                     pkr.encode(sout);
                     sout.close();
                     account.setPublicKey(new String(baos.toByteArray(),Charset.defaultCharset()));
+                    Constants.pgpPublicKey=new String(baos.toByteArray(),Charset.defaultCharset());
                     //System.out.println(new String(baos.toByteArray(),Charset.defaultCharset()));
                     baos.close();
                     db.getDatabase().insert(account.TABLE_NAME,null,account.getContentValues());
